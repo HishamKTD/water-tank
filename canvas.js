@@ -201,43 +201,68 @@ class Bug {
         this.velocity = velocity;
         this.radius = radius;
         this.color = color;
+        this.rotationAngle = 0; // Initialize rotation angle
+        this.rotationSpeed = 0.05; // Set rotation speed
+        this.rotationDirection = 1; // Set initial rotation direction
+        this.rotationIncrement = 0.02; // Set rotation angle increment
         this.mouthAngle = 0;
         this.mouthDirection = 1; // 1 for opening, -1 for closing
         this.mouthMaxAngle = Math.PI / 4; // Maximum angle for mouth opening
     }
 
     draw() {
+        // Save the current canvas state
+        c.save();
+
+        // Translate to the bug's position
+        c.translate(this.x, this.y);
+
+        // Apply rotation
+        c.rotate(this.rotationAngle);
+
+        // Draw the bug body
         c.beginPath();
-        c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        c.arc(0, 0, this.radius, 0, Math.PI * 2, false);
         c.fillStyle = this.color;
         c.fill();
         c.strokeStyle = 'black';
         c.stroke();
         c.closePath();
-    
+
         // Draw the eye
         const eyeRadius = this.radius * 0.1; // Adjust eye size relative to bug radius
         const eyeXOffset = this.radius * 0.4; // Adjust eye position relative to bug radius
         const eyeYOffset = -this.radius * 0.2; // Adjust eye position relative to bug radius
-    
+
         // Draw eye
         c.beginPath();
-        c.arc(this.x - eyeXOffset, this.y + eyeYOffset, eyeRadius, 0, Math.PI * 2, false);
+        c.arc(-eyeXOffset, eyeYOffset, eyeRadius, 0, Math.PI * 2, false);
         c.fillStyle = 'white';
         c.fill();
         c.closePath();
-        
+
         // Draw the mouth
         c.beginPath();
-        c.arc(this.x, this.y, this.radius, this.mouthAngle, -this.mouthAngle, true);
-        c.lineTo(this.x, this.y);
+        c.arc(0, 0, this.radius, this.mouthAngle, -this.mouthAngle, true);
+        c.lineTo(0, 0);
         c.closePath();
         c.fillStyle = 'black';
         c.fill();
+
+        // Restore the canvas state
+        c.restore();
     }
         
 
     update() {
+        // Update rotation angle
+        this.rotationAngle += this.rotationSpeed * this.rotationDirection;
+
+        // Check for rotation direction change
+        if (this.rotationAngle >= Math.PI / 4 || this.rotationAngle <= -Math.PI / 4) {
+            this.rotationDirection *= -1; // Reverse rotation direction when reaching max/min angle
+        }
+
         // Update mouth angle for opening and closing animation
         this.mouthAngle += 0.05 * this.mouthDirection;
         if (this.mouthAngle >= this.mouthMaxAngle || this.mouthAngle <= 0) {
